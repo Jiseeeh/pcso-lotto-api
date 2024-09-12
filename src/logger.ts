@@ -9,11 +9,11 @@ export const logger = pino({
           all: true,
           translateTime: true,
         },
-        level: "info",
+        level: "debug",
       },
       {
         target: "pino/file",
-        options: { destination: "./src/logs/debug.json" },
+        options: { destination: "./src/logs/debug.log" },
         level: "debug",
       },
     ],
