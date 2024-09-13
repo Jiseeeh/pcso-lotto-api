@@ -5,12 +5,8 @@ export function asyncWrapper(cb: Function) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
       await cb(req, res, next);
-    } catch (error) {
-      next(
-        new createHttpError.InternalServerError(
-          "Something went wrong with the server."
-        )
-      );
+    } catch (error: any) {
+      next(new createHttpError.InternalServerError(error.message));
     }
   };
 }
