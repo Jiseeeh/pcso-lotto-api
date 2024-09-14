@@ -2,9 +2,13 @@ import { Corporation } from "./enum/corporation.enum";
 import { Keys } from "./enum/keys.enum";
 import { GameID } from "./enum/game-id.enum";
 import { ResultTime } from "./enum/time.enum";
+import { Month } from "./enum/month.enum";
 
-export const RESULTS_URL =
+export const RESULTS_TODAY_URL =
   "https://www.lottopcso.com/lotto-result-today-summary/";
+
+export const RESULTS_BY_DATE_URL =
+  "https://www.lottopcso.com/pcso-lotto-result-";
 
 export const GAME_IDS = [
   GameID.UltraLotto_6_58,
@@ -33,4 +37,19 @@ export const TARGET_KEYS = [
 export const CORPORATIONS = [
   Corporation.LAPU_LAPU_CITY,
   Corporation.MANDAUE_CITY,
+];
+
+export const MONTHS = [
+  Month.JANUARY,
+  Month.FEBRUARY,
+  Month.MARCH,
+  Month.APRIL,
+  Month.MAY,
+  Month.JUNE,
+  Month.JULY,
+  Month.AUGUST,
+  Month.SEPTEMBER,
+  Month.OCTOBER,
+  Month.NOVEMBER,
+  Month.DECEMBER,
 ];
