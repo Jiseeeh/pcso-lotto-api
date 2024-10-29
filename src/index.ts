@@ -1,6 +1,6 @@
-import express, { Express } from "express";
+import express, {Express} from "express";
 
-import { appSetup, routerSetup, securitySetup } from "./startup";
+import {appSetup, routerSetup, securitySetup} from "./startup";
 
 const app: Express = express();
 

@@ -4,5 +4,6 @@ export const enum ResultTime {
   AFTERNOON_3_00 = "3:00 PM",
   AFTERNOON_5_00 = "5:00 PM",
   EVENING_7_00 = "7:00 PM",
+  EVENING_8_00 = "8:00 PM",
   EVENING_9_00 = "9:00 PM",
 }
