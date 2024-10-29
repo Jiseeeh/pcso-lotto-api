@@ -228,9 +228,9 @@ export const getResultsByDate = async (
     if (parseInt(day) > monthDays || parseInt(day) <= 0) {
         next(
             new createHttpError.BadRequest(
-                `Days of ${`${month.charAt(0).toUpperCase()}${month
+                `Days of ${month.charAt(0).toUpperCase()}${month
                     .slice(1, month.length)
-                    .toLowerCase()}`} are only ${monthDays}.`
+                    .toLowerCase()} are only ${monthDays}.`
             )
         );
         return;
