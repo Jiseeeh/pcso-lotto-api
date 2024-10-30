@@ -6,7 +6,7 @@ export function asyncWrapper(cb: Function) {
     try {
       await cb(req, res, next);
     } catch (error: any) {
-      next(new createHttpError.InternalServerError(error.message));
+      next(error);
     }
   };
 }
