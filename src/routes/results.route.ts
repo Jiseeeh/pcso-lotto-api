@@ -1,11 +1,17 @@
 import {Router} from "express";
 
 import {asyncWrapper} from "./wrapper";
-import {getResultsByDate, getResultsToday} from "../controllers/results.controller";
+import {
+    getResultsByDate,
+    getResultsToday,
+    getResultsTodayByGameId,
+    getResultsByDateAndByGameId
+} from "../controllers/results.controller";
 
 export const resultsRouter = Router();
 
 resultsRouter
     .get("/today", asyncWrapper(getResultsToday))
     .get("/:date", asyncWrapper(getResultsByDate))
-    .get("/today/:game_id");
+    .get("/today/:gameId", asyncWrapper(getResultsTodayByGameId))
+    .get("/:date/:gameId", asyncWrapper(getResultsByDateAndByGameId));
