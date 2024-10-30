@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import createHttpError from "http-errors";
 
 import {
@@ -17,7 +17,7 @@ import {Keys} from "../enum/keys.enum";
 import {Corporation} from "../enum/corporation.enum";
 import {Month} from "../enum/month.enum";
 import {Game} from "../interfaces/game.interface";
-import {getDays} from "../helper/getDays";
+import {formatGameId, getDays, groupBy} from "../helper";
 
 const parseResults = async (options: { url: string }) => {
     try {
@@ -90,19 +90,18 @@ const parseResults = async (options: { url: string }) => {
 
                         if (RESULTS_TIME.includes(key as ResultTime)) time = key;
 
-                        if (key.includes("-")) {
+                        if (key.includes("-") || key === "Stand by…") {
                             if (!result) result = key;
                             else if (!result2) result2 = key;
                             else result3 = key;
                         }
-
                     }
 
                     // ? we only found 1 game in the current table with a description (more likely a 6D or 6/X lotto)
                     // ? so we reset gameId, description, and result to get the next game
                     if (gameId && description && result && !gameId2) {
                         data.push(<Game>{
-                            gameId,
+                            gameId: formatGameId(gameId),
                             description,
                             time: time ? time : RESULTS_TIME[RESULTS_TIME.length - 1],
                             corporation,
@@ -120,7 +119,7 @@ const parseResults = async (options: { url: string }) => {
                     // ? for the server to set [result] to its respective gameId on table body loop
                     if (gameId && time && result) {
                         data.push({
-                            gameId,
+                            gameId: formatGameId(gameId),
                             description,
                             time,
                             corporation,
@@ -135,7 +134,7 @@ const parseResults = async (options: { url: string }) => {
                     // ? for the same reason as above.
                     if (gameId2 && time && result2) {
                         data.push({
-                            gameId: gameId2,
+                            gameId: formatGameId(gameId2),
                             description,
                             time,
                             corporation,
@@ -152,7 +151,7 @@ const parseResults = async (options: { url: string }) => {
                     // ? for gameId3, we reset all results since this will be the last game
                     if (gameId3 && time && result3) {
                         data.push({
-                            gameId: gameId3,
+                            gameId: formatGameId(gameId3),
                             description,
                             time,
                             corporation,
@@ -170,21 +169,113 @@ const parseResults = async (options: { url: string }) => {
                 corporation = "";
             });
 
+        const grouped = groupBy(data, "gameId");
+
         console.table(data);
 
-        return data;
+        return grouped;
 
     } catch (error) {
+        console.error(error);
         throw new createHttpError.InternalServerError(
             "The server encountered an error while parsing the results."
         );
     }
 };
 
+export const getResultsTodayByGameId = async (req: Request, res: Response) => {
+    const responseData: Record<string, Game> = await parseResults({
+        url: RESULTS_TODAY_URL,
+    });
+
+    const gameId = req.params.gameId as string;
+
+    const game = responseData[gameId];
+
+    if (!game) {
+        res.status(404).send({
+            message: `The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled.`
+        });
+    }
+
+    res.status(200).send(responseData[gameId]);
+}
+
+export const getResultsByDateAndByGameId = async (req: Request, res: Response) => {
+    const date = req.params.date;
+    checkDate(date);
+
+    const url = RESULTS_BY_DATE_URL + date;
+
+    const responseData: Record<string, Game> = await parseResults({
+        url,
+    });
+
+    const gameId = req.params.gameId as string;
+    const game = responseData[gameId];
+
+    if (!game) {
+        res.status(404).send({
+            message: `The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled.`
+        });
+    }
+
+    res.status(200).send(responseData[gameId]);
+}
+
+const checkDate = (date: string) => {
+    // ? 3-9 letters month
+    // ? 1-2 digits days
+    // ? 4 digits year
+    const dateRegex = /\w{3,9}-\d{1,2}-\d{4}/g;
+    const earliestMonthIndex = 7;
+    const earliestDay = 26;
+    const earliestYear = 2020;
+    const earliestDate = new Date(earliestYear, earliestMonthIndex, earliestDay);
+    const now = new Date();
+
+    if (!date.match(dateRegex)) {
+        throw new createHttpError.BadRequest(
+            "Please adhere to the proper format, see at <link>"
+        );
+    }
+
+    const [month, day, year] = date.split("-");
+    const givenMonth = month.toLowerCase() as Month;
+    const givenMonthIndex = MONTHS.indexOf(givenMonth);
+
+    // ? double check date
+    // ? start of records from site =  aug 26, 2020 - present
+    if (!MONTHS.includes(givenMonth)) {
+        throw new createHttpError.BadRequest("Please send a valid month.");
+    }
+
+    const monthDays = getDays(parseInt(year), givenMonthIndex);
+
+    if (parseInt(day) > monthDays || parseInt(day) <= 0) {
+        throw new createHttpError.BadRequest(
+            `Days of ${month.charAt(0).toUpperCase()}${month
+                .slice(1, month.length)
+                .toLowerCase()} are only ${monthDays}.`
+        )
+    }
+
+    const givenDate = new Date(parseInt(year), givenMonthIndex, parseInt(day));
+
+    if (givenDate < earliestDate) {
+        throw new createHttpError.BadRequest(
+            `Dates earlier than ${Month.AUGUST}, ${earliestDay} ${earliestYear} is not supported.`
+        );
+    }
+
+    if (givenDate > now) {
+        throw new createHttpError.BadRequest("Whoa there, time traveler! We don’t have results from the future yet. Try a date that’s not ahead of today.");
+    }
+}
+
 export const getResultsToday = async (
     req: Request,
     res: Response,
-    next: NextFunction
 ) => {
     const responseData = await parseResults({
         url: RESULTS_TODAY_URL,
@@ -196,54 +287,10 @@ export const getResultsToday = async (
 export const getResultsByDate = async (
     req: Request,
     res: Response,
-    next: NextFunction
 ) => {
-    // ? 3-9 letters month
-    // ? 1-2 digits days
-    // ? 4 digits year
-    const dateRegex = /\w{3,9}-\d{1,2}-\d{4}/g;
     const {date} = req.params;
 
-    if (!date.match(dateRegex)) {
-        next(
-            new createHttpError.BadRequest(
-                "Please adhere to the proper format, see at <link>"
-            )
-        );
-        return;
-    }
-
-    // ? double check date
-    // ? start of records from site =  aug 26, 2020 - present
-    const [month, day, year] = date.split("-");
-
-    if (!MONTHS.includes(month.toLowerCase() as Month)) {
-        next(new createHttpError.BadRequest("Please send a valid month."));
-        return;
-    }
-
-    const monthDays = getDays(parseInt(year), MONTHS.indexOf(month as Month));
-    const validYear = 2020;
-
-    if (parseInt(day) > monthDays || parseInt(day) <= 0) {
-        next(
-            new createHttpError.BadRequest(
-                `Days of ${month.charAt(0).toUpperCase()}${month
-                    .slice(1, month.length)
-                    .toLowerCase()} are only ${monthDays}.`
-            )
-        );
-        return;
-    }
-
-    if (parseInt(year) < validYear) {
-        next(
-            new createHttpError.BadRequest(
-                `Years earlier than ${validYear} is not supported.`
-            )
-        );
-        return;
-    }
+    checkDate(date);
 
     const url = RESULTS_BY_DATE_URL + date;
 
