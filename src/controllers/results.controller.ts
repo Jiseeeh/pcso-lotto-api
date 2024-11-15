@@ -198,7 +198,11 @@ export const getResultsTodayByGameId = async (req: Request, res: Response) => {
         });
     }
 
-    res.status(200).send(responseData[gameId]);
+    res.status(200).send({
+        gameId,
+        results:
+            responseData[gameId]
+    });
 }
 
 export const getResultsByDateAndByGameId = async (req: Request, res: Response) => {
@@ -220,7 +224,11 @@ export const getResultsByDateAndByGameId = async (req: Request, res: Response) =
         });
     }
 
-    res.status(200).send(responseData[gameId]);
+    res.status(200).send({
+        gameId,
+        results:
+            responseData[gameId]
+    });
 }
 
 const checkDate = (date: string) => {
@@ -274,7 +282,7 @@ const checkDate = (date: string) => {
 }
 
 export const getResultsToday = async (
-    req: Request,
+    _: Request,
     res: Response,
 ) => {
     const responseData = await parseResults({
