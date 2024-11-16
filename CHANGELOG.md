@@ -47,9 +47,3 @@
 * sign commits ([20b634c](https://github.com/Jiseeeh/pcso-lotto-api/commit/20b634c50f408fa33f937a16078e39ec6c325e75))
 * use create error constructor ([c60ccd0](https://github.com/Jiseeeh/pcso-lotto-api/commit/c60ccd04dd15eb0fc8ea3a22213bca2734d4124c))
 * use default release script ([dc75227](https://github.com/Jiseeeh/pcso-lotto-api/commit/dc75227630902ef4a2dbece9c256b9e2dc47281b))
-
-
-### BREAKING CHANGES
-
-* test major bump
-* test to bump major ver
