@@ -6,7 +6,7 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts ",
-    "release": "dotenv release-it --"
+    "release": "dotenv release-it --ci --"
   },
   "keywords": [],
   "author": "Jiseeeh <johncarlo.camara1@gmail.com> (https://jiseeeh.codes/)",
