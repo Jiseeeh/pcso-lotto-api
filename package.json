@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts "
+    "dev": "nodemon src/index.ts ",
+    "release": "release-it"
   },
   "keywords": [],
   "author": "Jiseeeh <johncarlo.camara1@gmail.com> (https://jiseeeh.codes/)",
@@ -22,11 +23,33 @@
     "pino-http-print": "^3.1.0"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^9.0.3",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.4",
     "nodemon": "^3.1.4",
+    "release-it": "^17.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
+  },
+  "release-it": {
+    "github": {
+      "release": true,
+      "commitMessage": "chore: release v${version}",
+      "releaseName": "v${version}",
+      "autoGenerate": true,
+      "web": true
+    },
+    "npm": {
+      "publish": false
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        },
+        "infile": "CHANGELOG.md"
+      }
+    }
   }
 }
