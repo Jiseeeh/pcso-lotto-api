@@ -6,7 +6,10 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts ",
-    "release": "release-it"
+    "release": "release-it",
+    "release-major": "release-it major",
+    "release-minor": "release-it minor",
+    "release-fix": "release-it patch"
   },
   "keywords": [],
   "author": "Jiseeeh <johncarlo.camara1@gmail.com> (https://jiseeeh.codes/)",
@@ -37,7 +40,8 @@
       "commitMessage": "chore: release v${version}",
       "commitArgs": [
         "-S"
-      ]
+      ],
+      "requireBranch": "main"
     },
     "github": {
       "release": true,
