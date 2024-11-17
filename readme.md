@@ -5,7 +5,7 @@ A small lotto results scrapper that can scrape lotto results ranging from August
 ## Motivation
 
 - I want to try redis, but I haven't implemented it yet.
-- I want to try release-it
+- ~~I want to try release-it~~
 
 ## Features
 
