@@ -18,8 +18,45 @@ import {Corporation} from "../enum/corporation.enum";
 import {Month} from "../enum/month.enum";
 import {Game} from "../interfaces/game.interface";
 import {formatGameId, getDays, groupBy} from "../helper";
+import {redisClient} from "../lib/redisClient";
 
 const parseResults = async (options: { url: string }) => {
+    const now = new Date();
+    const locale = "en-PH";
+    const nowParts = now.toLocaleString(locale, {hour12: false}).split(",");
+    const cachedResultsDate = await redisClient.hGet('resultsCacheDate', 'date') ?? "";
+    const cachedResultsTime = await redisClient.hGet('resultsCacheTime', 'time') ?? "";
+    const cachedResults = await redisClient.hGet('resultsCache', 'results');
+
+    cacheCheck: if (cachedResults && cachedResultsDate === nowParts[0].trim()) {
+        const timePartsNow = nowParts[1].trim().split(":");
+        const hourNow = parseInt(timePartsNow[0]);
+        const minutesNow = parseInt(timePartsNow[1]);
+        const resetHours = [14, 15, 17, 19, 20, 21];
+        // there's a draw every:
+        // 10:30AM -> 10:30
+        // 2:00PM -> 14:00
+        // 3:00PM -> 15:00
+        // 5:00PM -> 17:00
+        // 7:00PM -> 19:00
+        // 8:00PM -> 20:00
+        // 9:00PM -> 21:00
+
+        if (!cachedResultsTime) break cacheCheck;
+
+        const cacheTimeParts = cachedResultsTime.split(":");
+        const cacheTimeHour = parseInt(cacheTimeParts[0]);
+
+        if (hourNow === 10 && minutesNow >= 30) break cacheCheck;
+
+        if (hourNow > cacheTimeHour && resetHours.includes(hourNow)) break cacheCheck;
+
+        console.log(`cache hit, time: ${now.toLocaleString(locale)}`);
+        return JSON.parse(cachedResults);
+    }
+
+    console.log(`cache invalid or not existing, date: ${nowParts[0]},${nowParts[1]}`);
+
     try {
         const document = await cheerio.fromURL(options.url);
 
@@ -171,7 +208,16 @@ const parseResults = async (options: { url: string }) => {
 
         const grouped = groupBy(data, "gameId");
 
-        console.table(data);
+        // console.table(data);
+
+        const dateNow = nowParts[0].trim();
+        const timeNow = nowParts[1].trim();
+
+        await redisClient.hSet('resultsCache', 'results', JSON.stringify(grouped));
+        await redisClient.hSet('resultsCacheDate', 'date', dateNow);
+        await redisClient.hSet('resultsCacheTime', 'time', timeNow);
+
+        console.log('cached');
 
         return grouped;
 
