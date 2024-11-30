@@ -1,5 +1,16 @@
 
 
+# [1.1.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.0.0...1.1.0) (2024-11-30)
+
+
+### Features
+
+* add ci flag to release it ([b5e8a5f](https://github.com/Jiseeeh/pcso-lotto-api/commit/b5e8a5f6c55416d89d83026f325f148a6de8c47b))
+* add node redis ([22be8ce](https://github.com/Jiseeeh/pcso-lotto-api/commit/22be8ced7c6138f5672c3021e7c9f64138730e99))
+* add redis client ([cb48cf0](https://github.com/Jiseeeh/pcso-lotto-api/commit/cb48cf095fa44253b4df5db7f58ee2eac4ffb784))
+* cache results ([a4c7c6c](https://github.com/Jiseeeh/pcso-lotto-api/commit/a4c7c6c0a87273262012439d03c5c83f5903287a))
+* initialize redis client ([5e953b0](https://github.com/Jiseeeh/pcso-lotto-api/commit/5e953b04a50c67af8e0a70d62ee92627f2e70442))
+
 # 1.0.0 (2024-11-16)
 
 
