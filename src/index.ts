@@ -6,4 +6,4 @@ const app: Express = express();
 
 securitySetup(app);
 routerSetup(app);
-appSetup(app);
+appSetup(app)
