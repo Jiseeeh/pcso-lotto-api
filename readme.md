@@ -42,9 +42,13 @@ Start the server
 
 ## Environment Variables
 
-This is only used for logging,
+This is only used for logging.
 
 `NODE_ENV=dev`
+
+This is only used for releasing.
+
+`GITHUB_TOKEN`
 
 ## API Reference
 
