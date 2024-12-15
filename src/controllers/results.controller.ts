@@ -17,7 +17,7 @@ import {Keys} from "../enum/keys.enum";
 import {Corporation} from "../enum/corporation.enum";
 import {Month} from "../enum/month.enum";
 import {Game} from "../interfaces/game.interface";
-import {formatGameId, getDays, groupBy} from "../helper";
+import {formatDate, formatGameId, getDays, groupBy} from "../helper";
 import {redisClient} from "../lib/redisClient";
 
 const parseResults = async (options: { url: string }) => {
@@ -30,6 +30,8 @@ const parseResults = async (options: { url: string }) => {
 
     cacheCheck: if (cachedResults && cachedResultsDate === nowParts[0].trim()) {
         const timePartsNow = nowParts[1].trim().split(":");
+        // ? at most 5 but default to 8 to be sure.
+        const minutesBeforeDrawReflects = 8;
         const hourNow = parseInt(timePartsNow[0]);
         const minutesNow = parseInt(timePartsNow[1]);
         const resetHours = [14, 15, 17, 19, 20, 21];
@@ -46,16 +48,25 @@ const parseResults = async (options: { url: string }) => {
 
         const cacheTimeParts = cachedResultsTime.split(":");
         const cacheTimeHour = parseInt(cacheTimeParts[0]);
+        const cacheTimeMinutes = parseInt(cacheTimeParts[1]);
 
-        if (hourNow === 10 && minutesNow >= 30) break cacheCheck;
+        console.log(`Time now: ${hourNow}:${minutesNow}, CacheTime: ${cacheTimeHour}:${cacheTimeMinutes}`);
 
-        if (hourNow > cacheTimeHour && resetHours.includes(hourNow)) break cacheCheck;
+        if (hourNow === 10 && minutesNow >= 30 && cacheTimeHour === 10 && cacheTimeMinutes < 37) break cacheCheck;
 
-        console.log(`cache hit, time: ${now.toLocaleString(locale)}`);
+        // applicalble iif cache == hour
+        if (hourNow >= cacheTimeHour && resetHours.includes(hourNow)) {
+            if (hourNow !== cacheTimeHour || minutesNow <= minutesBeforeDrawReflects) break cacheCheck;
+        }
+
+        // ? check if there is a reset hour between the cached hour and the current hour
+        for (const resetHour of resetHours) if (hourNow > resetHour && cacheTimeHour < resetHour) break cacheCheck;
+
+        console.log(`cache hit, time: ${nowParts[0]},${nowParts[1]}`);
         return JSON.parse(cachedResults);
     }
 
-    console.log(`cache invalid or not existing, date: ${nowParts[0]},${nowParts[1]}`);
+    console.log(`cache invalid or not existing, \ndate now: ${nowParts[0]},${nowParts[1]}, cacheDate: ${cachedResultsDate}`);
 
     try {
         const document = await cheerio.fromURL(options.url);
@@ -127,7 +138,7 @@ const parseResults = async (options: { url: string }) => {
 
                         if (RESULTS_TIME.includes(key as ResultTime)) time = key;
 
-                        if (key.includes("-") || key === "Stand by…") {
+                        if (key.includes("-") || key === "Stand by…" || key === "Updating…") {
                             if (!result) result = key;
                             else if (!result2) result2 = key;
                             else result3 = key;
@@ -331,8 +342,11 @@ export const getResultsToday = async (
     _: Request,
     res: Response,
 ) => {
+    const now = new Date();
+    const date = formatDate(now);
+
     const responseData = await parseResults({
-        url: RESULTS_TODAY_URL,
+        url: RESULTS_BY_DATE_URL + date,
     });
 
     res.status(200).send(responseData);
