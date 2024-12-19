@@ -1,5 +1,18 @@
 
 
+# [1.2.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.1.0...1.2.0) (2024-12-19)
+
+
+### Bug Fixes
+
+* cache data gets stale and still gets returned ([b392793](https://github.com/Jiseeeh/pcso-lotto-api/commit/b392793e3d157d20ebc8e57e0f1ce67d4096cd90))
+
+
+### Features
+
+* add date formatter helper ([d7616e5](https://github.com/Jiseeeh/pcso-lotto-api/commit/d7616e5f667ba4e538d63385f76b6b497d957c77))
+* add date formatter to barrel file ([7842f1a](https://github.com/Jiseeeh/pcso-lotto-api/commit/7842f1a8c90b874dc45eb937c554282dab058814))
+
 # [1.1.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.0.0...1.1.0) (2024-11-30)
 
 
