@@ -23,50 +23,14 @@ import {redisClient} from "../lib/redisClient";
 const parseResults = async (options: { url: string }) => {
     const now = new Date();
     const locale = "en-PH";
-    const nowParts = now.toLocaleString(locale, {hour12: false}).split(",");
-    const cachedResultsDate = await redisClient.hGet('resultsCacheDate', 'date') ?? "";
-    const cachedResultsTime = await redisClient.hGet('resultsCacheTime', 'time') ?? "";
-    const cachedResults = await redisClient.hGet('resultsCache', 'results');
+    const cachedResults = await redisClient.get('resultsCache');
+    const resetHours = [10, 14, 15, 17, 19, 20, 21];
 
-    cacheCheck: if (cachedResults && cachedResultsDate === nowParts[0].trim()) {
-        const timePartsNow = nowParts[1].trim().split(":");
-        // ? at most 5 but default to 8 to be sure.
-        const minutesBeforeDrawReflects = 8;
-        const hourNow = parseInt(timePartsNow[0]);
-        const minutesNow = parseInt(timePartsNow[1]);
-        const resetHours = [14, 15, 17, 19, 20, 21];
-        // there's a draw every:
-        // 10:30AM -> 10:30
-        // 2:00PM -> 14:00
-        // 3:00PM -> 15:00
-        // 5:00PM -> 17:00
-        // 7:00PM -> 19:00
-        // 8:00PM -> 20:00
-        // 9:00PM -> 21:00
+    if (cachedResults != null) {
+        console.log(`Cache hit: ${now.toLocaleString(locale, {hour12: false})}`);
 
-        if (!cachedResultsTime) break cacheCheck;
-
-        const cacheTimeParts = cachedResultsTime.split(":");
-        const cacheTimeHour = parseInt(cacheTimeParts[0]);
-        const cacheTimeMinutes = parseInt(cacheTimeParts[1]);
-
-        console.log(`Time now: ${hourNow}:${minutesNow}, CacheTime: ${cacheTimeHour}:${cacheTimeMinutes}`);
-
-        if (hourNow === 10 && minutesNow >= 30 && cacheTimeHour === 10 && cacheTimeMinutes < 37) break cacheCheck;
-
-        // applicalble iif cache == hour
-        if (hourNow >= cacheTimeHour && resetHours.includes(hourNow)) {
-            if (hourNow !== cacheTimeHour || minutesNow <= minutesBeforeDrawReflects) break cacheCheck;
-        }
-
-        // ? check if there is a reset hour between the cached hour and the current hour
-        for (const resetHour of resetHours) if (hourNow > resetHour && cacheTimeHour < resetHour) break cacheCheck;
-
-        console.log(`cache hit, time: ${nowParts[0]},${nowParts[1]}`);
         return JSON.parse(cachedResults);
     }
-
-    console.log(`cache invalid or not existing, \ndate now: ${nowParts[0]},${nowParts[1]}, cacheDate: ${cachedResultsDate}`);
 
     try {
         const document = await cheerio.fromURL(options.url);
@@ -221,14 +185,35 @@ const parseResults = async (options: { url: string }) => {
 
         // console.table(data);
 
-        const dateNow = nowParts[0].trim();
-        const timeNow = nowParts[1].trim();
+        const hourNow = now.getHours();
+        const msInASecond = 1000;
+        const msInAnHour = 3_600_000;
 
-        await redisClient.hSet('resultsCache', 'results', JSON.stringify(grouped));
-        await redisClient.hSet('resultsCacheDate', 'date', dateNow);
-        await redisClient.hSet('resultsCacheTime', 'time', timeNow);
+        let expireHour = resetHours.find((hour) => hourNow < hour);
+        let expireDate = now.getDate();
+        let expireMinutes = 0;
 
-        console.log('cached');
+        if (hourNow >= 21) {
+            expireHour = resetHours[0];
+            // ? next day
+            expireDate++;
+            expireMinutes = 30;
+        }
+
+        const expiryDate = new Date(now.getFullYear(), now.getMonth(), expireDate, expireHour, expireMinutes);
+        const expireSeconds = Math.abs(now.valueOf() - expiryDate.valueOf());
+        const expiryTimeInSeconds = Math.round(expireSeconds / msInASecond);
+
+        // ? for exact minutes, e.g. 14:00
+        // ? for exact minutes for the first draw available 10:30
+        // ? results reflect in about 5 minutes after draw time, I made it 7 minutes to make it safe.
+        if (now.getMinutes() >= 7 || now.getMinutes() >= 37) {
+            await redisClient.set('resultsCache', JSON.stringify(grouped), {
+                EX: expiryTimeInSeconds
+            });
+        }
+
+        console.log(`Results cached for ${Math.round(expireSeconds / msInAnHour)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
 
         return grouped;
 
