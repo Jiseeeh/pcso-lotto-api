@@ -9,14 +9,14 @@ export const errorHandler = (
     res: Response,
     next: NextFunction
 ) => {
-  logger.error(err);
+    logger.error(err);
 
-  const prodError = {
-    message:
-        "Something went wrong, please contact the developer or try again later.",
-  };
+    const prodError = {
+        message:
+            "Something went wrong, please contact the developer or try again later.",
+    };
 
-  const error = process.env.NODE_ENV === "dev" ? err : prodError;
+    const error = process.env.NODE_ENV === "dev" ? err : prodError;
 
-  res.status(err.statusCode).send(error);
+    res.status(err.statusCode || 500).send(error);
 };
