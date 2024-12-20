@@ -20,6 +20,12 @@ import {Game} from "../interfaces/game.interface";
 import {formatDate, formatGameId, getDays, groupBy} from "../helper";
 import {redisClient} from "../lib/redisClient";
 
+const cacheData = async ({data, expireTimeInSeconds}: { data: any, expireTimeInSeconds: number }) => {
+    await redisClient.set('resultsCache', JSON.stringify(data), {
+        EX: expireTimeInSeconds
+    });
+}
+
 const parseResults = async (options: { url: string }) => {
     const now = new Date();
     const locale = "en-PH";
@@ -182,6 +188,7 @@ const parseResults = async (options: { url: string }) => {
             });
 
         const grouped = groupBy(data, "gameId");
+        const groupedData = {date: now.toLocaleString(locale, {hour12: false}).split(",")[0], ...grouped};
 
         // console.table(data);
 
@@ -202,20 +209,36 @@ const parseResults = async (options: { url: string }) => {
 
         const expiryDate = new Date(now.getFullYear(), now.getMonth(), expireDate, expireHour, expireMinutes);
         const expireSeconds = Math.abs(now.valueOf() - expiryDate.valueOf());
-        const expiryTimeInSeconds = Math.round(expireSeconds / msInASecond);
+        const expireTimeInSeconds = Math.round(expireSeconds / msInASecond);
 
-        // ? for exact minutes, e.g. 14:00
-        // ? for exact minutes for the first draw available 10:30
-        // ? results reflect in about 5 minutes after draw time, I made it 7 minutes to make it safe.
-        if (now.getMinutes() >= 7 || now.getMinutes() >= 37) {
-            await redisClient.set('resultsCache', JSON.stringify(grouped), {
-                EX: expiryTimeInSeconds
+        // ? earliest draw time is 10:30, reflect time is about 5 minutes
+        // ? I made it 10 to make it safe as the same for the next if statement
+        // ! IF THIS DID NOT WORK, THERE IS AN INSTANCE WHERE THE RESULTS
+        // ! REFLECTS VERY LATE (20+MINUTES)
+        if (now.getHours() === 10 && now.getMinutes() >= 40) {
+            await cacheData({
+                data: groupedData,
+                expireTimeInSeconds
             });
+            console.log(`Results cached for ${Math.round(expireSeconds / msInAnHour)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
+
         }
 
-        console.log(`Results cached for ${Math.round(expireSeconds / msInAnHour)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
+            // ? for exact minutes, e.g. 14:00
+        // ? results reflect in about 5 minutes after draw time, I made it 10 minutes to make it safe.
+        else if (now.getHours() !== 10 && now.getMinutes() >= 10) {
+            await cacheData({
+                data: groupedData,
+                expireTimeInSeconds
+            });
+            console.log(`Results cached for ${Math.round(expireSeconds / msInAnHour)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
 
-        return grouped;
+        } else {
+            console.log(`Full fetch, minutes now: ${now.getMinutes()}`);
+        }
+
+
+        return groupedData;
 
     } catch (error) {
         console.error(error);
