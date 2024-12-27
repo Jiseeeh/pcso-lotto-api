@@ -73,3 +73,6 @@ export const MONTHS = [
     Month.NOVEMBER,
     Month.DECEMBER,
 ];
+
+export const MS_IN_A_SECOND = 1000;
+export const MS_IN_AN_HOUR = 3_600_000;
