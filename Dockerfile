@@ -1,7 +1,7 @@
 FROM node:22-alpine
 LABEL authors="jiseeeh"
 
-WORKDIR /usr/src/app
+WORKDIR /usr/pcso-lotto-api
 
 COPY package*.json ./
 
