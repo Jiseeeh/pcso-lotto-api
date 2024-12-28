@@ -7,8 +7,8 @@ import {
     DESCRIPTION_KEYS,
     GAME_IDS,
     MONTHS,
-    MS_IN_AN_HOUR,
     MS_IN_A_SECOND,
+    MS_IN_AN_HOUR,
     RESULTS_BY_DATE_URL,
     RESULTS_TIME,
     RESULTS_TODAY_URL,
@@ -33,13 +33,15 @@ const cacheData = async ({data, expireSeconds, expiryDate}: { data: any, expireS
 }
 
 const parseResults = async (options: { url: string }) => {
-    const now = new Date();
-    const locale = "en-PH";
+    const phTime = new Date().toLocaleString('en-PH', {
+        hour12: false,
+        timeZone: "Asia/Manila"
+    });
     const cachedResults = await redisClient.get('resultsCache');
     const resetHours = [10, 14, 15, 17, 19, 20, 21];
 
     if (cachedResults != null) {
-        console.log(`Cache hit: ${now.toLocaleString(locale, {hour12: false})}`);
+        console.log(`Cache hit: ${phTime}`);
 
         return JSON.parse(cachedResults);
     }
@@ -194,35 +196,47 @@ const parseResults = async (options: { url: string }) => {
             });
 
         const grouped = groupBy(data, "gameId");
-        const groupedData = {date: now.toLocaleString(locale, {hour12: false}).split(",")[0], ...grouped};
+        const groupedData = {date: phTime.split(",")[0], ...grouped};
 
         // console.table(data);
 
-        const hourNow = now.getHours();
+        const phTimeParts = phTime.split(",");
+        const phTimeDate = phTimeParts[0].split("/");
+        const phTimeNowParts = phTimeParts[1].split(":");
+
+        const monthNow = parseInt(phTimeDate[0]) - 1;
+        const dateNow = parseInt(phTimeDate[1]);
+        const yearNow = parseInt(phTimeDate[2]);
+
+        const hourNow = parseInt(phTimeNowParts[0]);
+        const minNow = parseInt(phTimeNowParts[1]);
+        const secondsNow = parseInt(phTimeNowParts[2]);
 
         let expireHour = resetHours.find((hour) => hourNow < hour);
-        let expireDate = now.getDate();
-        let expireMinutes = 0;
+        let expireDate = dateNow;
+        let expireMinutes = 30;
 
-        if (hourNow >= 21) {
+        if (hourNow >= 21 && hourNow <= 23) {
             expireHour = resetHours[0];
             // ? next day
             expireDate++;
-            expireMinutes = 30;
+        } else if (hourNow > 10) {
+            expireMinutes = 0;
         }
 
-        const expiryDate = new Date(now.getFullYear(), now.getMonth(), expireDate, expireHour, expireMinutes);
-        const expireSeconds = Math.abs(now.valueOf() - expiryDate.valueOf());
+        const timeNow = new Date(yearNow, monthNow, dateNow, hourNow, minNow, secondsNow);
+        const expiryDate = new Date(yearNow, monthNow, expireDate, expireHour, expireMinutes);
+        const expireSeconds = Math.abs(timeNow.valueOf() - expiryDate.valueOf());
 
         if (
             // ? The earliest draw time is 10:30, reflect time is about 5 minutes
             // ? I made it +10 to make it safe
-            (now.getHours() === 10 && now.getMinutes() >= 40) ||
+            (hourNow === 10 && minNow >= 40) ||
             // ? Draws at 9 PM are delayed in reflecting as they are shown on TV
-            (now.getHours() === 21 && now.getMinutes() >= 30) ||
+            (hourNow === 21 && minNow >= 30) ||
             // ? For exact minutes, e.g. 14:00, 17:00
             // ? Results reflect in about 5 minutes after draw time, I made it 10 minutes to make it safe.
-            now.getMinutes() >= 10
+            minNow >= 10
         ) {
             await cacheData({
                 data: groupedData,
@@ -230,9 +244,8 @@ const parseResults = async (options: { url: string }) => {
                 expiryDate
             });
         } else {
-            console.log(`Full fetch, minutes now: ${now.getMinutes()}`);
+            console.log(`Full fetch, minutes now: ${minNow}`);
         }
-
 
         return groupedData;
 
