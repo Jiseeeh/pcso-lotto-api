@@ -1,21 +1,21 @@
-import {Express} from "express";
-import {pinoHttp} from "pino-http";
+import { Express } from "express";
+import { pinoHttp } from "pino-http";
 import dotenv from "dotenv";
 
-import {logger} from "../logger";
-import {errorHandler} from "../middleware/error";
-import {redisClient} from "../lib/redisClient";
+import { logger } from "../logger";
+import { errorHandler } from "../middleware/error";
+import { redisClient } from "../lib/redisClient";
 
 export const appSetup = (app: Express) => {
-    const PORT = 3000;
+	const PORT = 3000;
 
-    dotenv.config();
+	dotenv.config();
 
-    app.use(pinoHttp({logger})).use(errorHandler);
+	app.use(pinoHttp({logger})).use(errorHandler);
 
-    redisClient.connect().then(_ => console.log("Redis client connected"));
+	redisClient.connect().then(_ => console.log("Redis client connected"));
 
-    app.listen(PORT, () => {
-        console.log(`[server]: Server is running at http://localhost:${PORT}`);
-    });
+	app.listen(PORT, () => {
+		console.log(`[server]: Server is running at http://localhost:${PORT}`);
+	});
 };
