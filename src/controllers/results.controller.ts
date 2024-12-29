@@ -268,9 +268,9 @@ export const getResultsTodayByGameId = async (req: Request, res: Response) => {
 	const game = responseData[gameId];
 
 	if (!game) {
-		res.status(404).send({
-			message: `The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled.`
-		});
+		logger.error(`Invalid game ID: ${gameId}`);
+
+		throw new createHttpError.NotFound("The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled. See more at https://github.com/Jiseeeh/pcso-lotto-api?tab=readme-ov-file#all-possible-values-of-gameid");
 	}
 
 	res.status(200).send({
@@ -294,9 +294,9 @@ export const getResultsByDateAndByGameId = async (req: Request, res: Response) =
 	const game = responseData[gameId];
 
 	if (!game) {
-		res.status(404).send({
-			message: `The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled.`
-		});
+		logger.error(`Invalid game ID: ${gameId}`);
+
+		throw new createHttpError.NotFound("The game with ID ${gameId} could not be found. This may be because there was no draw for it today, or the game ID was misspelled. See more at https://github.com/Jiseeeh/pcso-lotto-api?tab=readme-ov-file#all-possible-values-of-gameid");
 	}
 
 	res.status(200).send({
