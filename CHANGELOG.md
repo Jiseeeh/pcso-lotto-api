@@ -1,5 +1,13 @@
 
 
+## [1.3.1](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.3.0...1.3.1) (2024-12-29)
+
+
+### Bug Fixes
+
+* add port ([f14bb45](https://github.com/Jiseeeh/pcso-lotto-api/commit/f14bb451f50f73c056198e961ba37f04957766ae))
+* throw error instead of manually sending it ([49466d2](https://github.com/Jiseeeh/pcso-lotto-api/commit/49466d2053dd4bd46a8a92ccd57b8be6e515fe44))
+
 # [1.3.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.2.1...1.3.0) (2024-12-29)
 
 
