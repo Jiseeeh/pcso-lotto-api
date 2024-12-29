@@ -50,6 +50,9 @@ This is only used for releasing.
 
 `GITHUB_TOKEN`
 
+To connect with redis
+`REDIS_URL`
+
 ## API Reference
 
 #### Get results today
