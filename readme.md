@@ -54,6 +54,10 @@ To connect with redis
 
 `REDIS_URL`
 
+To what port the server will listen
+
+`PORT`
+
 ## API Reference
 
 #### Get results today

@@ -7,7 +7,7 @@ import { errorHandler } from "../middleware/error";
 import { redisClient } from "../lib/redisClient";
 
 export const appSetup = (app: Express) => {
-	const PORT = 3000;
+	const PORT = process.env.PORT || 3000;
 
 	dotenv.config();
 
@@ -16,6 +16,6 @@ export const appSetup = (app: Express) => {
 	redisClient.connect().then(_ => logger.info("Redis client connected"));
 
 	app.listen(PORT, () => {
-		logger.info(`[server]: Server is running at http://localhost:${PORT}`);
+		logger.info(`Server is listening on port ${PORT}`);
 	});
 };
