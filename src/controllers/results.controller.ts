@@ -21,6 +21,7 @@ import { Month } from "../enum/month.enum";
 import { Game } from "../interfaces/game.interface";
 import { formatDate, formatGameId, getDays, groupBy } from "../helper";
 import { redisClient } from "../lib/redisClient";
+import { logger } from "../logger";
 
 const cacheData = async ({data, expireSeconds, expiryDate}: { data: any, expireSeconds: number, expiryDate: Date }) => {
 	const expireTimeInSeconds = Math.round(expireSeconds / MS_IN_A_SECOND);
@@ -29,7 +30,7 @@ const cacheData = async ({data, expireSeconds, expiryDate}: { data: any, expireS
 		EX: expireTimeInSeconds
 	});
 
-	console.log(`Results cached for ${Math.round(expireSeconds / MS_IN_AN_HOUR)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
+	logger.info(`Results cached for ${Math.round(expireSeconds / MS_IN_AN_HOUR)} hour(s), will expire on ${expiryDate.toLocaleString('en-PH')}`);
 }
 
 const parseResults = async (options: { url: string }) => {
@@ -41,7 +42,7 @@ const parseResults = async (options: { url: string }) => {
 	const resetHours = [10, 14, 15, 17, 19, 20, 21];
 
 	if (cachedResults != null) {
-		console.log(`Cache hit: ${phTime}`);
+		logger.info(`Cache hit: ${phTime}`);
 
 		return JSON.parse(cachedResults);
 	}
@@ -244,13 +245,13 @@ const parseResults = async (options: { url: string }) => {
 				expiryDate
 			});
 		} else {
-			console.log(`Full fetch, minutes now: ${minNow}`);
+			logger.info(`Full fetch, minutes now: ${minNow}`);
 		}
 
 		return groupedData;
 
 	} catch (error) {
-		console.error(error);
+		logger.error(error);
 		throw new createHttpError.InternalServerError(
 			"The server encountered an error while parsing the results."
 		);

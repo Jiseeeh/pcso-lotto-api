@@ -13,9 +13,9 @@ export const appSetup = (app: Express) => {
 
 	app.use(pinoHttp({logger})).use(errorHandler);
 
-	redisClient.connect().then(_ => console.log("Redis client connected"));
+	redisClient.connect().then(_ => logger.info("Redis client connected"));
 
 	app.listen(PORT, () => {
-		console.log(`[server]: Server is running at http://localhost:${PORT}`);
+		logger.info(`[server]: Server is running at http://localhost:${PORT}`);
 	});
 };
