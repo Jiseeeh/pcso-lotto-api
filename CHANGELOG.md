@@ -1,5 +1,16 @@
 
 
+## [1.2.1](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.2.0...1.2.1) (2024-12-29)
+
+
+### Bug Fixes
+
+* data being cached with wrong conditions ([c8cfa72](https://github.com/Jiseeeh/pcso-lotto-api/commit/c8cfa728dc5d57bcce5229e6a1261745eec1d058))
+* redis image not being recognized ([b658550](https://github.com/Jiseeeh/pcso-lotto-api/commit/b6585504619f2de8fe9c1d9c63bba4be745b93bf))
+* redundant checking of caching ([099bf14](https://github.com/Jiseeeh/pcso-lotto-api/commit/099bf147abe1568ba3bb480ead670d1af5c4f58c))
+* status code being out of range ([e68e755](https://github.com/Jiseeeh/pcso-lotto-api/commit/e68e755d589aa06aa1a45ec2c211f5df73111ef5))
+* system time being used instead of ph time ([add9750](https://github.com/Jiseeeh/pcso-lotto-api/commit/add97507c1a93d0850ef306ca4dd1d8cde5b39e1))
+
 # [1.2.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.1.0...1.2.0) (2024-12-19)
 
 
