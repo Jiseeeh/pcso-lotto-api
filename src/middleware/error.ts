@@ -15,8 +15,9 @@ export const errorHandler = (
 		message:
 			"Something went wrong, please contact the developer or try again later.",
 	};
+	const statusCode = err.statusCode || 500;
 
 	const error = process.env.NODE_ENV === "dev" ? err : prodError;
 
-	res.status(err.statusCode || 500).send(error);
+	res.status(statusCode).send(error);
 };
