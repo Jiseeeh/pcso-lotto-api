@@ -1,5 +1,13 @@
 
 
+# [1.3.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.2.1...1.3.0) (2024-12-29)
+
+
+### Features
+
+* remove file logs ([b6a4440](https://github.com/Jiseeeh/pcso-lotto-api/commit/b6a444003eb5e786d7dda898867a48116dbcc513))
+* replace console logs with pino ([b87f2a6](https://github.com/Jiseeeh/pcso-lotto-api/commit/b87f2a68f9d8ac20872c0fa3fc5a462538b7ea38))
+
 ## [1.2.1](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.2.0...1.2.1) (2024-12-29)
 
 
