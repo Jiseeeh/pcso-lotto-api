@@ -9,12 +9,7 @@ export const logger = pino({
 					all: true,
 					translateTime: true,
 				},
-				level: "debug",
-			},
-			{
-				target: "pino/file",
-				options: {destination: "./src/logs/debug.log"},
-				level: "debug",
+				level: "trace",
 			},
 		],
 	},
