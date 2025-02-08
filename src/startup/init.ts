@@ -7,15 +7,15 @@ import { errorHandler } from "../middleware/error";
 import { redisClient } from "../lib/redisClient";
 
 export const appSetup = (app: Express) => {
-	const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 3000;
 
-	dotenv.config();
+  dotenv.config();
 
-	app.use(pinoHttp({logger})).use(errorHandler);
+  app.use(pinoHttp({ logger })).use(errorHandler);
 
-	redisClient.connect().then(_ => logger.info("Redis client connected"));
+  redisClient.connect().then((_) => logger.info("Redis client connected"));
 
-	app.listen(PORT, () => {
-		logger.info(`Server is listening on port ${PORT}`);
-	});
+  app.listen(PORT, () => {
+    logger.info(`Server is listening on port ${PORT}`);
+  });
 };

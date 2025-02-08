@@ -1,3 +1,3 @@
 export const formatGameId = (gameId: string): string => {
-	return gameId.toLowerCase().replace(/[\s/]+/g, "-");
+  return gameId.toLowerCase().replace(/[\s/]+/g, "-");
 };
