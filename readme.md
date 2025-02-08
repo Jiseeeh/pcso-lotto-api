@@ -31,16 +31,10 @@ Go to the project directory
   cd pcso-lotto-api
 ```
 
-Install dependencies
+Start docker and run
 
 ```bash
-  npm install
-```
-
-Start the server
-
-```bash
-  npm run dev
+  docker compose up
 ```
 
 ## Environment Variables
@@ -63,13 +57,13 @@ To what port the server will listen
 
 ## API Reference
 
-#### Get results today
+### Get results today
 
 ```http
   GET /api/results/today
 ```
 
-#### Get results by gameId
+### Get results by gameId
 
 ```http
   GET /api/today/:gameId
@@ -83,7 +77,7 @@ To what port the server will listen
   GET /api/results/:date
 ```
 
-#### Get results by date
+### Get results by date
 
 | Parameter | Type     | Description                             | Sample value |
 |:----------|:---------|:----------------------------------------|:-------------|
@@ -93,7 +87,7 @@ To what port the server will listen
   GET /api/results/:date/:gameId
 ```
 
-#### Get results by date and gameId
+### Get results by date and gameId
 
 | Parameter | Type     | Description                             | Sample value |
 |:----------|:---------|:----------------------------------------|:-------------|
