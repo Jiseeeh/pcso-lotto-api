@@ -351,7 +351,7 @@ const checkDate = (date: string) => {
 
   if (!date.match(dateRegex)) {
     throw new createHttpError.BadRequest(
-      "Please adhere to the proper format, see at <link>"
+      "Please adhere to the proper format. See more at https://github.com/Jiseeeh/pcso-lotto-api?tab=readme-ov-file#get-results-by-date"
     );
   }
 
