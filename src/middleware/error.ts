@@ -11,13 +11,5 @@ export const errorHandler = (
 ) => {
   logger.error(err);
 
-  const prodError = {
-    message:
-      "Something went wrong, please contact the developer or try again later.",
-  };
-  const statusCode = err.statusCode || 500;
-
-  const error = process.env.NODE_ENV === "dev" ? err : prodError;
-
-  res.status(statusCode).send(error);
+  res.status(err.statusCode || 500).send(err);
 };
