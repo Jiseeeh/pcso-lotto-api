@@ -1,5 +1,20 @@
 
 
+# [1.4.0](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.3.1...1.4.0) (2025-02-10)
+
+
+### Bug Fixes
+
+* remove generic response on prod ([57cd991](https://github.com/Jiseeeh/pcso-lotto-api/commit/57cd9911bee112adce3423c9cdaaf49b6e10adba))
+
+
+### Features
+
+* add swagger docs ([8305a5a](https://github.com/Jiseeeh/pcso-lotto-api/commit/8305a5a8cc48728537d0522ac644130aadd324bb))
+* add watch for dev ([bade113](https://github.com/Jiseeeh/pcso-lotto-api/commit/bade11307e313844fee27384f3a7f22f5ecc2111))
+* run app depending on env ([e09f648](https://github.com/Jiseeeh/pcso-lotto-api/commit/e09f648432efa950a62c33e00a5f58e5109702b6))
+* temporarily disable caching on getting results by date ([b83c6ba](https://github.com/Jiseeeh/pcso-lotto-api/commit/b83c6bade3c71a1fe87c2a4347d82f93b790405a))
+
 ## [1.3.1](https://github.com/Jiseeeh/pcso-lotto-api/compare/1.3.0...1.3.1) (2024-12-29)
 
 
