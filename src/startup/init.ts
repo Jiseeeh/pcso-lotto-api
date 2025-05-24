@@ -15,7 +15,7 @@ export const appSetup = (app: Express) => {
 
   redisClient.connect().then((_) => logger.info("Redis client connected"));
 
-  app.listen(`0.0.0.0:${PORT}`, () => {
+  app.listen(Number(PORT), "0.0.0.0", () => {
     logger.info(`Server is listening on 0.0.0.0:${PORT}`);
   });
 };
