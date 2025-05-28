@@ -66,7 +66,7 @@ To what port the server will listen
 ### Get results by gameId
 
 ```http
-  GET /api/today/:gameId
+  GET /api/results/today/:gameId
 ```
 
 | Parameter | Type     | Description                       | Sample Value |
